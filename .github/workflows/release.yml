@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build module zip
         run: |
@@ -27,3 +29,49 @@ jobs:
         with:
           files: module.zip
           generate_release_notes: true
+
+      - name: Checkout main branch
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Update module download URL for this tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+
+          const tag = process.env.TAG_NAME;
+          const repo = process.env.REPOSITORY;
+          const filePath = "module.json";
+
+          const manifest = JSON.parse(fs.readFileSync(filePath, "utf8"));
+          const expected = `https://github.com/${repo}/releases/download/${tag}/module.zip`;
+
+          if (manifest.download === expected) {
+            console.log("module.json download URL already up to date.");
+            process.exit(0);
+          }
+
+          manifest.download = expected;
+          fs.writeFileSync(filePath, `${JSON.stringify(manifest, null, 2)}\n`);
+          console.log(`Updated module.json download URL to ${expected}`);
+          NODE
+
+      - name: Commit download URL update
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          if git diff --quiet -- module.json; then
+            echo "No manifest changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add module.json
+          git commit -m "chore: update module download URL for ${{ github.ref_name }}"
+          git push origin main
