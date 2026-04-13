@@ -1,0 +1,55 @@
+name: Auto Tag From Module Version
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - module.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create version tag when missing
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+
+            const moduleJson = JSON.parse(fs.readFileSync("module.json", "utf8"));
+            const version = String(moduleJson.version || "").trim();
+            if (!version) {
+              core.setFailed("module.json is missing a version.");
+              return;
+            }
+
+            const tag = `v${version}`;
+            const ref = `tags/${tag}`;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            try {
+              await github.rest.git.getRef({ owner, repo, ref });
+              core.info(`Tag ${tag} already exists. Nothing to do.`);
+              return;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+
+            await github.rest.git.createRef({
+              owner,
+              repo,
+              ref: `refs/${ref}`,
+              sha: context.sha
+            });
+
+            core.info(`Created tag ${tag} at ${context.sha}.`);
