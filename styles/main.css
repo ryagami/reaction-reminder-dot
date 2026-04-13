@@ -1,19 +1,31 @@
+.rrd-dot-host {
+  position: relative;
+  padding-right: 1rem;
+}
+
 .rrd-dot {
-  margin-left: 0.4rem;
-  width: 0.72rem;
-  height: 0.72rem;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.62rem;
+  height: 0.62rem;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(10, 14, 20, 0.55);
   background: #26c281;
-  box-shadow: 0 0 4px rgba(38, 194, 129, 0.65);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0 5px rgba(38, 194, 129, 0.5);
   cursor: pointer;
   padding: 0;
-  vertical-align: middle;
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.rrd-dot:hover:not([disabled]) {
+  transform: translateY(-50%) scale(1.08);
 }
 
 .rrd-dot[data-spent="true"] {
   background: #6f7b86;
-  box-shadow: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
   opacity: 0.8;
 }
 
