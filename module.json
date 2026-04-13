@@ -2,7 +2,7 @@
   "id": "reaction-reminder-dot",
   "title": "Reaction Reminder Dot",
   "description": "Adds a tiny reaction-spent reminder dot to each combatant in the Combat Tracker for dnd5e on Foundry VTT v13.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "authors": [
     {
       "name": "ryagami"
@@ -10,7 +10,7 @@
   ],
   "compatibility": {
     "minimum": "13",
-    "verified": "13.350"
+    "verified": "13.351"
   },
   "relationships": {
     "systems": [
