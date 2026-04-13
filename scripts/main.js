@@ -93,41 +93,22 @@ Hooks.on("combatStart", async (combat) => {
   ui.combat?.render(false);
 });
 
-for (const hookName of [
-  "dnd5e.postUseActivity",
-  "dnd5e.useActivity",
-  "dnd5e.activityUse",
-  "dnd5e.activityUsed"
-]) {
-  Hooks.on(hookName, async (...args) => {
-    await maybeMarkReactionFromSource(getActivitySource(args), args);
-  });
-}
-
-Hooks.on("createChatMessage", async (message) => {
-  const source = message?.flags?.dnd5e;
-  await maybeMarkReactionFromSource(source, [message]);
-});
-
-async function maybeMarkReactionFromSource(source, args = []) {
+Hooks.on("dnd5e.postUseActivity", async (...args) => {
   if (!game.settings.get(MODULE_ID, "enableAutoTrack")) return;
 
-  if (!source) return;
+  const activity = args[0];
+  if (!activity) return;
 
   const activationType = String(
-    source?.activation?.type
-      ?? source?.system?.activation?.type
-      ?? source?.item?.system?.activation?.type
-      ?? source?.activity?.activation?.type
-      ?? source?.item?.activity?.activation?.type
-      ?? source?.data?.activation?.type
-      ?? source?.item?.data?.activation?.type
+    activity?.activation?.type
+      ?? activity?.system?.activation?.type
+      ?? activity?.item?.system?.activation?.type
       ?? ""
   ).toLowerCase();
 
   if (!REACTION_TYPES.has(activationType)) return;
 
-  const actor = getActorFromSource(source, args);
+  const actor = activity?.actor ?? activity?.item?.actor;
   if (!actor) return;
 
   const combat = game.combat;
@@ -140,41 +121,7 @@ async function maybeMarkReactionFromSource(source, args = []) {
 
   await combatant.setFlag(MODULE_ID, FLAG_SPENT, true);
   ui.combat?.render(false);
-}
-
-function getActivitySource(args) {
-  for (const value of args) {
-    if (!value || typeof value !== "object") continue;
-    if (value.activation || value.system?.activation || value.item) return value;
-  }
-  return args[0];
-}
-
-function getActorFromSource(source, args) {
-  const directActor = source?.actor ?? source?.item?.actor ?? source?.activity?.actor;
-  if (directActor) return directActor;
-
-  const actorId = source?.actorId
-    ?? source?.actor?.id
-    ?? source?.item?.actor?.id
-    ?? source?.activity?.actor?.id
-    ?? source?.data?.actorId
-    ?? source?.parent?.id;
-
-  if (actorId) {
-    const byId = game.actors?.get(actorId);
-    if (byId) return byId;
-  }
-
-  for (const value of args) {
-    const argActor = value?.actor ?? value?.item?.actor ?? value?.speaker?.actor;
-    if (argActor?.id) {
-      return game.actors?.get(argActor.id) ?? argActor;
-    }
-  }
-
-  return null;
-}
+});
 
 function canToggle(combatant) {
   if (game.user.isGM) return true;
