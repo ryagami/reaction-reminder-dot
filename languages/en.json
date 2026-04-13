@@ -1,0 +1,8 @@
+{
+  "RRD.SettingsEnableAutoTrackName": "Auto-track dnd5e reactions",
+  "RRD.SettingsEnableAutoTrackHint": "Mark reaction as spent when a reaction activity is used.",
+  "RRD.SettingsAllowPlayersToggleName": "Players can toggle owned combatants",
+  "RRD.SettingsAllowPlayersToggleHint": "If disabled, only the GM can toggle reaction dots.",
+  "RRD.DotSpentTitle": "Reaction spent",
+  "RRD.DotAvailableTitle": "Reaction available"
+}

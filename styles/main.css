@@ -1,0 +1,23 @@
+.rrd-dot {
+  margin-left: 0.4rem;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.45);
+  background: #26c281;
+  box-shadow: 0 0 4px rgba(38, 194, 129, 0.65);
+  cursor: pointer;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.rrd-dot[data-spent="true"] {
+  background: #6f7b86;
+  box-shadow: none;
+  opacity: 0.8;
+}
+
+.rrd-dot[disabled] {
+  cursor: default;
+  filter: saturate(0.4);
+}
